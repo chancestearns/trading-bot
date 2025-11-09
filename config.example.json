@@ -1,0 +1,31 @@
+{
+  "engine": {
+    "mode": "backtest",
+    "symbols": ["AAPL", "MSFT"],
+    "timeframe": "1m",
+    "data_provider": {
+      "name": "mock",
+      "params": {
+        "seed": 7,
+        "base_price": 120.0
+      }
+    },
+    "broker": {
+      "name": "paper",
+      "starting_cash": 100000.0
+    },
+    "strategy": {
+      "name": "example_sma",
+      "params": {
+        "short_window": 5,
+        "long_window": 15,
+        "trade_quantity": 10
+      }
+    },
+    "risk": {
+      "max_position_size": 50,
+      "max_daily_loss": 2000,
+      "params": {}
+    }
+  }
+}
