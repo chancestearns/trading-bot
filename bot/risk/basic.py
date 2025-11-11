@@ -28,6 +28,10 @@ class BasicRiskManager(RiskManager):
         market_state: MarketState,
     ) -> Signal | None:
         del market_state
+
+        if signal.action in {SignalAction.CLOSE_LONG, SignalAction.CLOSE_SHORT}:
+            return signal
+
         if self._daily_loss_exceeded(portfolio_state):
             return None
 

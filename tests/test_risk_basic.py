@@ -75,6 +75,19 @@ class BasicRiskManagerTestCase(unittest.TestCase):
 
         self.assertIsNone(result)
 
+    def test_allows_closing_signals_after_drawdown(self) -> None:
+        """Exit signals should still flow even when the drawdown limit is met."""
+
+        portfolio_state = PortfolioState(
+            cash=self.config.starting_cash - self.config.max_daily_loss,
+            positions={"AAPL": Position(symbol="AAPL", quantity=50.0, avg_price=100.0)},
+        )
+        signal = Signal(symbol="AAPL", action=SignalAction.CLOSE_LONG, quantity=50.0)
+
+        result = self.risk_manager.validate_signal(signal, portfolio_state, self.market_state)
+
+        self.assertIs(result, signal)
+
 
 if __name__ == "__main__":
     unittest.main()
