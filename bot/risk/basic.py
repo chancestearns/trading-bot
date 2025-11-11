@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from typing import Dict
 
 from bot.models import MarketState, PortfolioState, Position, Signal, SignalAction
+
+from bot.models import MarketState, PortfolioState, Signal, SignalAction
 from bot.risk.base import RiskManager
 
 
@@ -17,6 +19,7 @@ class BasicRiskConfig:
 
 class BasicRiskManager(RiskManager):
     """Simple risk checks enforcing per-symbol position caps and drawdown limits."""
+    """Simple risk checks enforcing position size and drawdown limits."""
 
     def __init__(self, config: BasicRiskConfig) -> None:
         self.config = config
@@ -47,6 +50,14 @@ class BasicRiskManager(RiskManager):
             return None
         requested_qty = abs(signal.quantity)
         adjusted_qty = min(requested_qty, available)
+            return self._validate_open_signal(signal, portfolio_state)
+        return signal
+
+    def _validate_open_signal(self, signal: Signal, portfolio_state: PortfolioState) -> Signal | None:
+        available = max(0.0, self.config.max_position_size - portfolio_state.net_exposure)
+        if available <= 0.0:
+            return None
+        adjusted_qty = min(abs(signal.quantity), available)
         if adjusted_qty <= 0:
             return None
         if adjusted_qty != abs(signal.quantity):
@@ -55,6 +66,7 @@ class BasicRiskManager(RiskManager):
                 action=signal.action,
                 quantity=adjusted_qty,
                 meta=signal.meta | {"capped_quantity": adjusted_qty},
+                meta=signal.meta | {"adjusted": 1.0},
             )
         return signal
 
