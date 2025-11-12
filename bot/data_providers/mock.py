@@ -1,4 +1,5 @@
 """Mock data provider generating deterministic synthetic data."""
+
 from __future__ import annotations
 
 import asyncio
@@ -62,7 +63,9 @@ class MockDataProvider(BaseDataProvider):
         price = max(1.0, last_price + change)
         return Tick(symbol=symbol, timestamp=datetime.utcnow(), price=price)
 
-    async def stream_prices(self, symbols: Iterable[str]) -> AsyncIterator[Dict[str, Tick]]:
+    async def stream_prices(
+        self, symbols: Iterable[str]
+    ) -> AsyncIterator[Dict[str, Tick]]:
         if not self._connected:
             raise RuntimeError("Data provider is not connected. Call connect() first.")
 

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """Run a mock backtest and display a price chart."""
 
 import sys

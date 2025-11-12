@@ -1,4 +1,5 @@
 """Run a mock backtest using the built-in components."""
+
 from __future__ import annotations
 
 import argparse
@@ -38,15 +39,28 @@ async def _run(config: Config) -> None:
     await engine.run()
 
 
+from bot.config import Config, load_config, ConfigValidationError
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the mock backtest.")
-    parser.add_argument("--config", type=Path, default=None, help="Path to config JSON file")
+    parser = argparse.ArgumentParser(description="Run the trading bot.")
+    parser.add_argument(
+        "--config", type=Path, default=None, help="Path to config JSON file"
+    )
     args = parser.parse_args()
 
     setup_logging()
-    config = load_config(args.config)
-    config.engine.mode = "backtest"
-    asyncio.run(_run(config))
+
+    try:
+        config = load_config(args.config)
+        config.engine.mode = "paper"  # or "backtest"
+        asyncio.run(_run(config))
+    except ConfigValidationError as e:
+        print(f"Configuration error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Fatal error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 """Example simple moving average crossover strategy."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,7 +31,9 @@ class SimpleMovingAverageStrategy(Strategy):
         self.config = config or SimpleMovingAverageConfig()
         self._trend_state: Dict[str, str] = {}
 
-    def on_start(self, config: object | None = None, logger: logging.Logger | None = None) -> None:
+    def on_start(
+        self, config: object | None = None, logger: logging.Logger | None = None
+    ) -> None:
         # Update defaults from engine configuration if provided. Users can pass
         # arbitrary parameters in the config file which will be forwarded here.
         overrides: Dict[str, object] = {}
@@ -39,9 +42,15 @@ class SimpleMovingAverageStrategy(Strategy):
         elif hasattr(config, "params"):
             overrides = getattr(config, "params") or {}
         strategy_logger = logger or self.logger
-        self.config.short_window = int(overrides.get("short_window", self.config.short_window))
-        self.config.long_window = int(overrides.get("long_window", self.config.long_window))
-        self.config.trade_quantity = float(overrides.get("trade_quantity", self.config.trade_quantity))
+        self.config.short_window = int(
+            overrides.get("short_window", self.config.short_window)
+        )
+        self.config.long_window = int(
+            overrides.get("long_window", self.config.long_window)
+        )
+        self.config.trade_quantity = float(
+            overrides.get("trade_quantity", self.config.trade_quantity)
+        )
         if self.config.short_window >= self.config.long_window:
             raise ValueError("short_window must be strictly smaller than long_window")
         strategy_logger.info(
@@ -61,7 +70,9 @@ class SimpleMovingAverageStrategy(Strategy):
             if len(candles) < self.config.long_window:
                 continue
             closes = [candle.close for candle in candles]
-            short_avg = sum(closes[-self.config.short_window :]) / self.config.short_window
+            short_avg = (
+                sum(closes[-self.config.short_window :]) / self.config.short_window
+            )
             long_avg = sum(closes[-self.config.long_window :]) / self.config.long_window
 
             current_trend = self._trend_state.get(symbol, "flat")
@@ -76,7 +87,9 @@ class SimpleMovingAverageStrategy(Strategy):
                     )
                 )
                 self._trend_state[symbol] = "long"
-            elif short_avg < long_avg and (current_trend == "long" or (position and position.quantity > 0)):
+            elif short_avg < long_avg and (
+                current_trend == "long" or (position and position.quantity > 0)
+            ):
                 signals.append(
                     Signal(
                         symbol=symbol,

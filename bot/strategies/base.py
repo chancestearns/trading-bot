@@ -1,4 +1,5 @@
 """Base classes for trading strategies."""
+
 from __future__ import annotations
 
 import abc
@@ -14,7 +15,9 @@ class Strategy(abc.ABC):
     def __init__(self) -> None:
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def on_start(self, config: object | None = None, logger: Optional[logging.Logger] = None) -> None:
+    def on_start(
+        self, config: object | None = None, logger: Optional[logging.Logger] = None
+    ) -> None:
         """Hook executed before the engine starts processing data.
 
         Parameters

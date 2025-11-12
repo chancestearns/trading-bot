@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <h1>🤖 Trading Bot Dashboard</h1>
+            <div class="bot-status" id="bot-status">
+                <span class="status-indicator" id="status-indicator"></span>
+                <span class="status-text" id="status-text">Loading...</span>
+            </div>
+        </header>
+
+        <!-- Control Panel -->
+        <section class="controls">
+            <button id="start-btn" class="btn btn-success">▶ Start Bot</button>
+            <button id="stop-btn" class="btn btn-warning">⏸ Stop Bot</button>
+            <button id="emergency-btn" class="btn btn-danger">🛑 Emergency Stop</button>
+            <button id="refresh-btn" class="btn btn-secondary">🔄 Refresh</button>
+        </section>
+
+        <!-- Metrics Grid -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <h3>Account Balance</h3>
+                <p class="metric-value" id="balance">$0.00</p>
+                <p class="metric-label">Cash Available</p>
+            </div>
+            <div class="metric-card">
+                <h3>Equity</h3>
+                <p class="metric-value" id="equity">$0.00</p>
+                <p class="metric-label">Total Portfolio Value</p>
+            </div>
+            <div class="metric-card">
+                <h3>Daily P&L</h3>
+                <p class="metric-value" id="daily-pnl">$0.00</p>
+                <p class="metric-label">Today's Performance</p>
+            </div>
+            <div class="metric-card">
+                <h3>Total P&L</h3>
+                <p class="metric-value" id="total-pnl">$0.00</p>
+                <p class="metric-label">All-Time Performance</p>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <div class="chart-container">
+                <h3>Performance Overview</h3>
+                <canvas id="performance-chart"></canvas>
+            </div>
+        </section>
+
+        <!-- Positions Table -->
+        <section class="data-section">
+            <h3>Current Positions</h3>
+            <div class="table-container">
+                <table id="positions-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Quantity</th>
+                            <th>Avg Price</th>
+                            <th>Current Price</th>
+                            <th>P&L</th>
+                            <th>P&L %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positions-body">
+                        <tr class="no-data">
+                            <td colspan="6">No positions</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Orders Table -->
+        <section class="data-section">
+            <h3>Recent Orders</h3>
+            <div class="table-container">
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Symbol</th>
+                            <th>Side</th>
+                            <th>Type</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body">
+                        <tr class="no-data">
+                            <td colspan="7">No orders</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- System Info -->
+        <section class="system-info">
+            <h3>System Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Mode:</span>
+                    <span class="info-value" id="mode">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Strategy:</span>
+                    <span class="info-value" id="strategy">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Symbols:</span>
+                    <span class="info-value" id="symbols">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Uptime:</span>
+                    <span class="info-value" id="uptime">-</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Trading Bot Dashboard v1.0 | Last Updated: <span id="last-update">-</span></p>
+        </footer>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

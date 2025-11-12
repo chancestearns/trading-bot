@@ -1,4 +1,5 @@
 """Run the trading engine in simulated live (paper) mode."""
+
 from __future__ import annotations
 
 import argparse
@@ -38,20 +39,28 @@ async def _run(config: Config, iterations: int | None) -> None:
     await engine.run(iterations=iterations)
 
 
+from bot.config import Config, load_config, ConfigValidationError
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the engine in paper trading mode.")
-    parser.add_argument("--config", type=Path, default=None, help="Path to config JSON file")
+    parser = argparse.ArgumentParser(description="Run the trading bot.")
     parser.add_argument(
-        "--iterations",
-        type=int,
-        default=20,
-        help="Number of streaming iterations to run (default: 20).",
+        "--config", type=Path, default=None, help="Path to config JSON file"
     )
     args = parser.parse_args()
 
     setup_logging()
-    config = load_config(args.config)
-    config.engine.mode = "paper"
+
+    try:
+        config = load_config(args.config)
+        config.engine.mode = "paper"  # or "backtest"
+        asyncio.run(_run(config))
+    except ConfigValidationError as e:
+        print(f"Configuration error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Fatal error: {e}", file=sys.stderr)
+        sys.exit(1)
     asyncio.run(_run(config, args.iterations))
 
 

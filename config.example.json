@@ -12,7 +12,10 @@
     },
     "broker": {
       "name": "paper",
-      "starting_cash": 100000.0
+      "starting_cash": 100000.0,
+      "commission_per_share": 0.0,
+      "commission_percent": 0.0,
+      "slippage_percent": 0.001
     },
     "strategy": {
       "name": "example_sma",
@@ -25,7 +28,14 @@
     "risk": {
       "max_position_size": 50,
       "max_daily_loss": 2000,
+      "max_total_exposure": 50000,
+      "max_open_positions": 5,
       "params": {}
+    },
+    "logging": {
+      "level": "INFO",
+      "format": "standard",
+      "file": null
     }
   }
 }

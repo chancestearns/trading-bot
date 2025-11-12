@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  trading-bot:
+    build: .
+    container_name: trading-bot
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config.json:/app/config/config.json:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      # Override config via environment variables
+      - TRADING_BOT__ENGINE__MODE=paper
+      - TRADING_BOT__ENGINE__BROKER__STARTING_CASH=100000
+      # Add secrets via environment
+      - TRADING_BOT__WEBHOOK__SECRET=${WEBHOOK_SECRET:-your_secret_here}
+    restart: unless-stopped
+    networks:
+      - trading-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Prometheus for metrics
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #   networks:
+  #     - trading-net
+
+  # Optional: Grafana for dashboards
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+  #   networks:
+  #     - trading-net
+
+networks:
+  trading-net:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

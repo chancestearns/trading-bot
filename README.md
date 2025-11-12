@@ -1,112 +1,441 @@
-# Trading Bot Skeleton
+# Trading Bot - Production-Ready Framework
 
-This repository contains a production-leaning skeleton for a modular trading bot. It
-focuses on clean abstractions so real-world components—live market data feeds,
-broker integrations, and sophisticated strategies—can be dropped in without
-restructuring the codebase.
+A modular, production-ready trading bot built with Python 3.11+ featuring async broker integrations, comprehensive risk management, real-time monitoring dashboard, and TradingView webhook integration.
 
-## Architecture Overview
+## 🚀 Features
+
+### Core Architecture
+- **Async-first design** - Full async/await support for real-world broker APIs
+- **Interface-driven** - Clean abstractions for swappable components
+- **Configuration-driven** - Runtime behavior controlled via typed config models
+- **Production-ready error handling** - Retry logic, circuit breakers, and graceful degradation
+
+### Trading Capabilities
+- **Order lifecycle management** - Complete tracking of order states, fills, and reconciliation
+- **Position tracking** - Real-time P&L calculations and position management
+- **Enhanced risk management** - PDT compliance, circuit breakers, rate limiting, drawdown protection
+- **Multiple broker support** - Paper trading, TradingView webhooks, thinkorswim API (partial)
+
+### Monitoring & Control
+- **Web Dashboard** - Real-time HTML/CSS/JS dashboard with live updates
+- **FastAPI Backend** - RESTful API for all bot operations
+- **WebSocket updates** - Live position and P&L streaming
+- **TradingView Integration** - Webhook receiver for TradingView alerts
+- **Emergency controls** - Circuit breakers and emergency liquidation
+
+## 📁 Architecture Overview
 
 ```
 bot/
-  config.py              # Configuration management
-  models.py              # Core domain models (candles, ticks, orders, signals, ...)
-  data_providers/        # Data provider interfaces & mock implementation
-  brokers/               # Broker abstractions & paper trading broker
-  strategies/            # Strategy interfaces & sample SMA strategy
-  risk/                  # Risk manager interfaces & basic implementation
-  engine/                # Orchestration loop and logging config
+  config.py              # Enhanced configuration with validation
+  models.py              # Production-ready domain models with full lifecycle tracking
+  data_providers/        # Data provider interfaces & implementations
+    base.py              # BaseDataProvider abstract interface
+    mock.py              # Mock data provider for testing
+  brokers/               # Broker abstractions & implementations
+    base.py              # Async BaseBroker interface with exception hierarchy
+    paper.py             # Enhanced paper broker with realistic simulation
+    tradingview.py       # TradingView webhook receiver (optional)
+    thinkorswim.py       # thinkorswim API integration (optional)
+  strategies/            # Strategy interfaces & implementations
+    base.py              # Strategy abstract interface
+    example_sma.py       # SMA crossover example strategy
+  risk/                  # Risk management
+    base.py              # RiskManager interface
+    basic.py             # BasicRiskManager with position & drawdown limits
+  engine/                # Orchestration
+    loop.py              # Trading engine with async support & error handling
+    logging_config.py    # Centralized logging configuration
+  api/                   # Web API & Dashboard (optional)
+    server.py            # FastAPI server for monitoring & control
+  ui/                    # Web dashboard (optional)
+    templates/           # HTML templates
+    static/              # CSS, JavaScript, assets
 scripts/
-  run_backtest.py        # Run a mock backtest end-to-end
-  run_paper_trading.py   # Run a simulated live session
+  run_backtest.py        # Run historical backtest
+  run_paper_trading.py   # Run simulated live trading
+  run_with_ui.py         # Run with web dashboard
+tests/
+  test_models.py         # Test enhanced models
+  test_engine_loop.py    # Test engine orchestration
+  test_risk_basic.py     # Test risk management
+  test_broker_paper.py   # Test paper broker
 config.example.json      # Example configuration file
+requirements.txt         # Python dependencies
+Dockerfile               # Container configuration
+docker-compose.yml       # Multi-container orchestration
 ```
 
-Key principles:
+## 🔧 Getting Started
 
-* **Modularity** – Data providers, brokers, strategies, and risk managers use
-  clear interfaces so they can be swapped independently.
-* **Configuration Driven** – Runtime choices (mode, symbols, providers,
-  strategy parameters) are resolved via typed configuration models.
-* **Logging & Risk Hooks** – Central logging configuration and a basic risk
-  manager make it easier to extend the skeleton into production workflows.
-
-## Getting Started
-
-### Installation
-
-The project targets Python 3.11+. Install dependencies (only standard library
-is required for the mock setup):
+### Quick Start with Web Dashboard
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .  # optional if you add packaging metadata
+# Install dependencies
+pip install -r requirements.txt
+
+# Copy and edit configuration
+cp config.example.json config.json
+
+# Run with web dashboard
+python scripts/run_with_dashboard.py --config config.json
+
+# Open browser to http://localhost:8000
+```
+
+### Docker Deployment
+
+```bash
+# Build and run
+docker-compose up -d
+
+# View logs
+docker-compose logs -f trading-bot
+
+# Stop
+docker-compose down
 ```
 
 ### Configuration
 
-Copy the example configuration and adapt it to your environment:
-
-```bash
-cp config.example.json config.json
+**Config File** (`config.json`):
+```json
+{
+  "engine": {
+    "mode": "paper",
+    "symbols": ["AAPL", "MSFT"],
+    "broker": {
+      "starting_cash": 100000
+    },
+    "strategy": {
+      "name": "example_sma",
+      "params": {
+        "short_window": 5,
+        "long_window": 15
+      }
+    },
+    "risk": {
+      "max_position_size": 50,
+      "max_daily_loss": 2000
+    }
+  }
+}
 ```
 
-Environment variables prefixed with `TRADING_BOT__` override nested config
-values. For example:
-
+**Environment Variables** (override config):
 ```bash
 export TRADING_BOT__ENGINE__MODE=paper
-export TRADING_BOT__ENGINE__STRATEGY__PARAMS__TRADE_QUANTITY=5
+export TRADING_BOT__ENGINE__BROKER__STARTING_CASH=50000
+export TRADING_BOT__WEBHOOK__SECRET=your_secret_key
 ```
 
-### Running a Mock Backtest
+### Running the Bot
 
+**Backtest Mode:**
 ```bash
 python scripts/run_backtest.py --config config.json
 ```
 
-The script wires the mock data provider, paper broker, SMA strategy, and basic
-risk manager into the engine. Replace components with your own implementations
-by extending the factories in `scripts/`.
-
-### Running Simulated Paper Trading
-
+**Paper Trading:**
 ```bash
 python scripts/run_paper_trading.py --config config.json --iterations 50
 ```
 
-This mode consumes streaming ticks from the mock provider. Replace the data
-provider with a real-time implementation to connect to live feeds.
-
-## Extending the Skeleton
-
-1. **New Strategy** – Subclass `bot.strategies.base.Strategy`, implement
-   `on_bar`, and update the scripts or your orchestration layer to instantiate
-   it when `config.engine.strategy.name` matches your strategy key.
-2. **Real Data Provider** – Implement `bot.data_providers.base.BaseDataProvider`
-   to pull historical data and stream real-time ticks from an exchange or data
-   vendor. Inject it using the configuration or via custom factories.
-3. **Real Broker** – Subclass `bot.brokers.base.BaseBroker` and wire real order
-   routing APIs. The engine already routes risk-approved signals into the broker.
-4. **Advanced Risk Controls** – Implement `bot.risk.base.RiskManager` to enforce
-   portfolio-specific rules (exposure, leverage, compliance) before orders are
-   submitted.
-
-## Testing
-
-Run the included unit tests:
-
+**With Web Dashboard:**
 ```bash
-python -m unittest discover tests
+python scripts/run_with_ui.py --config config.json
+# Open browser to http://localhost:8080
 ```
 
-The tests cover the example strategy and ensure the engine can execute a short
-mock backtest end-to-end.
+## 📊 Configuration Options
 
-## Next Steps
+### Complete Configuration Example
 
-* Add packaging metadata (e.g., `pyproject.toml`) and dependency management.
-* Integrate persistent storage for trades and performance metrics.
-* Enhance error handling and resilience for production deployments.
-* Replace mock components with real market data, brokers, and bespoke strategies.
+```json
+{
+  "engine": {
+    "mode": "paper",
+    "symbols": ["AAPL", "MSFT", "GOOGL"],
+    "timeframe": "5m",
+    "data_provider": {
+      "name": "mock",
+      "params": {
+        "seed": 42,
+        "base_price": 150.0
+      }
+    },
+    "broker": {
+      "name": "paper",
+      "starting_cash": 100000.0,
+      "commission_per_share": 0.0,
+      "commission_percent": 0.001,
+      "slippage_percent": 0.0005
+    },
+    "strategy": {
+      "name": "example_sma",
+      "params": {
+        "short_window": 5,
+        "long_window": 20,
+        "trade_quantity": 10
+      }
+    },
+    "risk": {
+      "max_position_size": 1000,
+      "max_daily_loss": 5000,
+      "max_total_exposure": 50000,
+      "max_open_positions": 5
+    },
+    "logging": {
+      "level": "INFO",
+      "format": "standard",
+      "file": "logs/trading.log"
+    }
+  }
+}
+```
+
+### Modes
+
+- **`backtest`** - Historical data simulation
+- **`paper`** - Simulated live trading with mock data
+- **`live`** - Real trading with live broker integration
+
+### Broker Options
+
+- **`paper`** - Built-in paper trading with realistic fills
+- **`tradingview`** - TradingView webhook receiver
+- **`thinkorswim`** - Charles Schwab thinkorswim API
+
+## 🔌 Broker Integrations
+
+### Paper Trading (Built-in)
+
+No additional setup required. Configured via `broker` section in config.
+
+### TradingView Webhooks
+
+1. Set webhook secret:
+   ```bash
+   export WEBHOOK_SECRET=your_secret_here
+   ```
+
+2. Configure TradingView alert with JSON payload:
+   ```json
+   {
+     "timestamp": "{{time}}",
+     "ticker": "{{ticker}}",
+     "action": "buy",
+     "quantity": 10,
+     "price": {{close}},
+     "strategy": "My_Strategy",
+     "secret": "your_secret_here"
+   }
+   ```
+
+3. Set webhook URL: `https://yourdomain.com/webhook/tradingview`
+
+### thinkorswim API
+
+1. Get API credentials from Charles Schwab developer portal
+
+2. Configure environment variables:
+   ```bash
+   export TOS_CLIENT_ID=your_client_id
+   export TOS_REFRESH_TOKEN=your_refresh_token
+   export TOS_ACCOUNT_ID=your_account_id
+   ```
+
+3. Update config:
+   ```json
+   {
+     "broker": {
+       "name": "thinkorswim",
+       "use_paper_trading": true
+     }
+   }
+   ```
+
+## 🎯 Creating Custom Strategies
+
+```python
+from bot.strategies.base import Strategy
+from bot.models import MarketState, PortfolioState, Signal, SignalAction
+
+class MyStrategy(Strategy):
+    def on_start(self, config, logger):
+        self.param = config.params.get('my_param', 10)
+        logger.info(f"Strategy started with param={self.param}")
+    
+    def on_bar(self, market_state: MarketState, portfolio_state: PortfolioState):
+        signals = []
+        
+        for symbol, candles in market_state.candles.items():
+            if len(candles) < 20:
+                continue
+            
+            # Your strategy logic here
+            if self._should_buy(candles):
+                signals.append(Signal(
+                    symbol=symbol,
+                    action=SignalAction.OPEN_LONG,
+                    quantity=10.0,
+                    confidence=0.8
+                ))
+        
+        return signals
+    
+    def _should_buy(self, candles):
+        # Implement your logic
+        return False
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=bot --cov-report=html
+
+# Run specific test file
+pytest tests/test_engine_loop.py -v
+
+# Run with async support
+pytest tests/ -v --asyncio-mode=auto
+```
+
+## 🐳 Docker Deployment
+
+```bash
+# Build image
+docker-compose build
+
+# Run container
+docker-compose up -d
+
+# View logs
+docker-compose logs -f trading-bot
+
+# Stop container
+docker-compose down
+```
+
+## 📈 Monitoring & Metrics
+
+### Web Dashboard
+
+Access at `http://localhost:8080` when running with UI.
+
+Features:
+- Real-time position monitoring
+- P&L tracking
+- Order history
+- Emergency stop button
+- Live logs
+
+### Prometheus Metrics
+
+Exposed at `http://localhost:8080/metrics`
+
+Available metrics:
+- `orders_submitted_total` - Counter of orders submitted
+- `orders_filled_total` - Counter of successfully filled orders
+- `orders_rejected_total` - Counter of rejected orders
+- `current_positions` - Gauge of open positions
+- `account_equity_dollars` - Current account equity
+- `unrealized_pnl_dollars` - Unrealized P&L
+
+## 🔒 Security Best Practices
+
+- ✅ Never commit secrets to version control
+- ✅ Use environment variables for sensitive data
+- ✅ Enable HTTPS for webhook endpoints
+- ✅ Validate webhook signatures
+- ✅ Implement rate limiting
+- ✅ Use strong secrets for webhooks
+- ✅ Enable IP whitelisting where possible
+- ✅ Run with least-privilege user in containers
+
+## 🛠️ Development
+
+### Code Quality
+
+```bash
+# Format code
+black bot/ tests/ scripts/
+
+# Sort imports
+isort bot/ tests/ scripts/
+
+# Type checking
+mypy bot/
+
+# Linting
+ruff check bot/
+```
+
+### Pre-commit Hooks
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install hooks
+pre-commit install
+
+# Run manually
+pre-commit run --all-files
+```
+
+## 📚 Documentation
+
+- [Production Readiness Guide](docs/production_readiness.md)
+- [Migration Guide](docs/migration_guide.md)
+- [Broker Integration Guide](docs/broker_integration.md)
+- [API Documentation](docs/api_documentation.md)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## ⚠️ Disclaimer
+
+This software is for educational purposes only. Trading involves substantial risk of loss. The authors are not responsible for any financial losses incurred through the use of this software. Always test thoroughly with paper trading before risking real capital.
+
+## 🆘 Support
+
+- **Issues**: Open an issue on GitHub
+- **Discussions**: Use GitHub Discussions
+- **Documentation**: Check the `docs/` directory
+
+## 🗺️ Roadmap
+
+- [ ] Additional broker integrations (Interactive Brokers, Alpaca)
+- [ ] Advanced order types (bracket orders, OCO)
+- [ ] Options trading support
+- [ ] Multi-strategy portfolio management
+- [ ] Machine learning strategy framework
+- [ ] Mobile app for monitoring
+- [ ] Cloud deployment templates (AWS, GCP, Azure)
+
+## 🙏 Acknowledgments
+
+Built with:
+- Python 3.11+
+- FastAPI
+- aiohttp
+- pytest
+
+---
+
+**Version**: 1.0.0  
+**Last Updated**: November 2025

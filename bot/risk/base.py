@@ -1,4 +1,5 @@
 """Risk management interface definitions."""
+
 from __future__ import annotations
 
 import abc

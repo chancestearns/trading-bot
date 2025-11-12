@@ -1,4 +1,5 @@
 """Abstract interfaces for market data providers."""
+
 from __future__ import annotations
 
 import abc

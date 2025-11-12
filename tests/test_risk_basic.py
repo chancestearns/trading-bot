@@ -1,4 +1,5 @@
 """Tests for the basic risk manager implementation."""
+
 from __future__ import annotations
 
 import unittest
@@ -28,7 +29,9 @@ class BasicRiskManagerTestCase(unittest.TestCase):
         )
         signal = Signal(symbol="AAPL", action=SignalAction.OPEN_LONG, quantity=5.0)
 
-        result = self.risk_manager.validate_signal(signal, portfolio_state, self.market_state)
+        result = self.risk_manager.validate_signal(
+            signal, portfolio_state, self.market_state
+        )
 
         self.assertIsNone(result)
 
@@ -41,7 +44,9 @@ class BasicRiskManagerTestCase(unittest.TestCase):
         )
         signal = Signal(symbol="AAPL", action=SignalAction.OPEN_LONG, quantity=40.0)
 
-        result = self.risk_manager.validate_signal(signal, portfolio_state, self.market_state)
+        result = self.risk_manager.validate_signal(
+            signal, portfolio_state, self.market_state
+        )
 
         self.assertIsNotNone(result)
         assert result is not None  # for mypy/static type checkers
@@ -58,7 +63,9 @@ class BasicRiskManagerTestCase(unittest.TestCase):
         )
         signal = Signal(symbol="AAPL", action=SignalAction.CLOSE_LONG, quantity=50.0)
 
-        result = self.risk_manager.validate_signal(signal, portfolio_state, self.market_state)
+        result = self.risk_manager.validate_signal(
+            signal, portfolio_state, self.market_state
+        )
 
         self.assertIs(result, signal)
 
@@ -71,7 +78,9 @@ class BasicRiskManagerTestCase(unittest.TestCase):
         )
         signal = Signal(symbol="AAPL", action=SignalAction.OPEN_LONG, quantity=1.0)
 
-        result = self.risk_manager.validate_signal(signal, portfolio_state, self.market_state)
+        result = self.risk_manager.validate_signal(
+            signal, portfolio_state, self.market_state
+        )
 
         self.assertIsNone(result)
 
@@ -84,7 +93,9 @@ class BasicRiskManagerTestCase(unittest.TestCase):
         )
         signal = Signal(symbol="AAPL", action=SignalAction.CLOSE_LONG, quantity=50.0)
 
-        result = self.risk_manager.validate_signal(signal, portfolio_state, self.market_state)
+        result = self.risk_manager.validate_signal(
+            signal, portfolio_state, self.market_state
+        )
 
         self.assertIs(result, signal)
 

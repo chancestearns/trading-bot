@@ -4,7 +4,10 @@ from datetime import datetime, timedelta
 import unittest
 
 from bot.models import Candle, MarketState, PortfolioState, Position, SignalAction
-from bot.strategies.example_sma import SimpleMovingAverageConfig, SimpleMovingAverageStrategy
+from bot.strategies.example_sma import (
+    SimpleMovingAverageConfig,
+    SimpleMovingAverageStrategy,
+)
 
 
 class SimpleSMATest(unittest.TestCase):
@@ -39,8 +42,12 @@ class SimpleSMATest(unittest.TestCase):
 
     def test_generates_close_long_signal(self):
         candles_open = self._build_candles([100, 105, 110])
-        self.strategy.on_bar(MarketState(candles={"AAPL": candles_open}), self.portfolio)
-        self.portfolio.positions["AAPL"] = Position(symbol="AAPL", quantity=1.0, avg_price=105.0)
+        self.strategy.on_bar(
+            MarketState(candles={"AAPL": candles_open}), self.portfolio
+        )
+        self.portfolio.positions["AAPL"] = Position(
+            symbol="AAPL", quantity=1.0, avg_price=105.0
+        )
         candles_close = self._build_candles([100, 105, 110, 90])
         market_state = MarketState(candles={"AAPL": candles_close})
         signals = self.strategy.on_bar(market_state, self.portfolio)

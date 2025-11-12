@@ -1,4 +1,5 @@
 """Central logging configuration for the trading bot."""
+
 from __future__ import annotations
 
 import logging
