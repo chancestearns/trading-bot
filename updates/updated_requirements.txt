@@ -1,0 +1,41 @@
+# Core async and HTTP
+aiohttp>=3.9.0
+asyncio-mqtt>=0.16.1
+
+# Web framework for UI
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+pydantic>=2.5.0
+
+# WebSockets for real-time updates
+websockets>=12.0
+
+# Retry logic and resilience
+tenacity>=8.2.3
+
+# Monitoring and metrics
+prometheus-client>=0.19.0
+
+# Date and time handling
+python-dateutil>=2.8.2
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+
+# Code quality
+black>=23.12.0
+mypy>=1.8.0
+ruff>=0.1.9
+isort>=5.13.0
+
+# Optional: Data science and visualization
+pandas>=2.1.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+
+# Optional: Additional broker integrations
+# schwab-py>=0.1.0  # Uncomment for thinkorswim integration
