@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  trading-bot:
+    build: .
+    container_name: trading-bot
+    environment:
+      - TRADING_BOT__ENGINE__MODE=paper
+      - TRADING_BOT__BROKER__STARTING_CASH=100000
+      - TRADING_BOT__ENGINE__LOGGING__LEVEL=INFO
+    volumes:
+      - ./logs:/app/logs
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
